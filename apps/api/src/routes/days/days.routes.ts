@@ -5,12 +5,14 @@ import {
   editDay,
   getDays,
   getLines,
+  getModels,
 } from './days.controller';
 
 export const daysRouter = Router();
 
 daysRouter.get('/', getDays);
 daysRouter.get('/lines', getLines);
+daysRouter.get('/models', getModels);
 
 daysRouter.post('/', createDay);
 

@@ -8,6 +8,7 @@ export const getModelsSchema = z.object({
 export const createModelSchema = z.object({
   code: z.string(),
   time: z.coerce.number(),
+  parts: z.array(z.coerce.number().int()),
 });
 
 export const editModelSchema = createModelSchema.extend({

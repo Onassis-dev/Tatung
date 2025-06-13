@@ -8,6 +8,7 @@ import { usersRouter } from './routes/users/users.routes';
 import { partsRouter } from './routes/parts/parts.routes';
 import { modelsRouter } from './routes/models/models.routes';
 import { linesRouter } from './routes/lines/lines.routes';
+import { daysRouter } from './routes/days/days.routes';
 
 const app = express();
 const port = 3000;
@@ -35,6 +36,7 @@ app.use('/users', authenticate('users') as RequestHandler, usersRouter);
 app.use('/parts', authenticate('models') as RequestHandler, partsRouter);
 app.use('/models', authenticate('models') as RequestHandler, modelsRouter);
 app.use('/lines', authenticate('planning') as RequestHandler, linesRouter);
+app.use('/days', authenticate('planning') as RequestHandler, daysRouter);
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);

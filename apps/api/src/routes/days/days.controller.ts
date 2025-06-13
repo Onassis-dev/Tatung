@@ -20,11 +20,32 @@ export async function getLines(req: Request, res: Response) {
   res.send(lines);
 }
 
+export async function getModels(req: Request, res: Response) {
+  const models = await sql`SELECT id, code from models`;
+  const result = models.map((model: any) => ({
+    label: model.code,
+    value: model.id,
+  }));
+  res.send(result);
+}
+
 export async function createDay(req: Request, res: Response) {
   const body = validate(createDaySchema, req.body, res);
   if (!body) return;
 
-  await sql`insert into days ${sql(body)}`;
+  const [model] =
+    await sql`SELECT code as model, time from models where id = ${body.model_id}`;
+  if (!model) {
+    res.status(400).send('Modelo no encontrado');
+    return;
+  }
+
+  await sql`insert into days ${sql({
+    ...model,
+    date: body.date,
+    line_id: body.line_id,
+    employees: body.employees,
+  })}`;
   res.send();
 }
 
