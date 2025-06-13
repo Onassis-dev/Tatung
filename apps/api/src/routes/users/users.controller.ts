@@ -16,7 +16,7 @@ export async function getUsers(req: Request, res: Response) {
   const users =
     await sql`SELECT id, username, p_planning::text, p_models::text, p_users::text, count(*) OVER() as count FROM users
   order by id desc limit 10 offset ${10 * (body.page - 1)}`;
-  res.send({ rows: users, count: users[0].count });
+  res.send({ rows: users, count: users[0]?.count });
 }
 
 export async function createUser(req: Request, res: Response) {

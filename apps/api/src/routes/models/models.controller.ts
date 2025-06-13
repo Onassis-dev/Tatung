@@ -22,7 +22,7 @@ export async function getModels(req: Request, res: Response) {
     ), '[]'::json) AS parts
   FROM models ORDER BY id DESC LIMIT 10 OFFSET ${10 * (body.page - 1)}`;
 
-  res.send({ rows: models, count: models[0].count });
+  res.send({ rows: models, count: models[0]?.count });
 }
 
 export async function getParts(req: Request, res: Response) {

@@ -14,7 +14,7 @@ export async function getParts(req: Request, res: Response) {
 
   const parts = await sql`SELECT id, code, count(*) OVER() as count FROM parts
   order by id desc limit 10 offset ${10 * (body.page - 1)}`;
-  res.send({ rows: parts, count: parts[0].count });
+  res.send({ rows: parts, count: parts[0]?.count });
 }
 
 export async function createPart(req: Request, res: Response) {

@@ -14,7 +14,7 @@ export async function getLines(req: Request, res: Response) {
 
   const lines = await sql`SELECT id, code, count(*) OVER() as count FROM lines
   order by id desc limit 10 offset ${10 * (body.page - 1)}`;
-  res.send({ rows: lines, count: lines[0].count });
+  res.send({ rows: lines, count: lines[0]?.count });
 }
 
 export async function createModel(req: Request, res: Response) {
