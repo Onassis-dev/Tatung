@@ -1,8 +1,9 @@
 import { Router } from 'express';
-import { getDisplays, scanModel } from './displays.controller';
+import { getCapture, getDisplays, scanModel } from './displays.controller';
 
 export const displaysRouter = Router();
 
 displaysRouter.get('/', getDisplays);
+displaysRouter.get('/scan', getCapture);
 
 displaysRouter.post('/scan', scanModel);

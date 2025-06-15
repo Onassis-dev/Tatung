@@ -12,6 +12,8 @@ import { daysRouter } from './routes/days/days.routes';
 import { ipsRouter } from './routes/ips/ips.routes';
 import { displaysRouter } from './routes/displays/displays.routes';
 
+process.env.TZ = 'UTC';
+
 const app = express();
 const port = 3000;
 
@@ -43,6 +45,6 @@ app.use('/models', authenticate('models') as RequestHandler, modelsRouter);
 app.use('/lines', authenticate('planning') as RequestHandler, linesRouter);
 app.use('/days', authenticate('planning') as RequestHandler, daysRouter);
 
-app.listen(port, () => {
+app.listen(port, '0.0.0.0', () => {
   console.log(`Example app listening on port ${port}`);
 });

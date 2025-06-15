@@ -1,0 +1,141 @@
+---
+import "./display.css";
+const apiBase = import.meta.env.PUBLIC_API_BASE;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tatung</title>
+  </head>
+  <body>
+    <div id="data" class="hidden" data-api-base={apiBase}></div>
+    <div class="dashboard">
+      <!-- Header Cards -->
+      <div class="header-grid">
+        <!-- Model Card -->
+        <div class="card">
+          <div class="card-label">MODELO</div>
+          <div class="card-value" id="model">model</div>
+        </div>
+
+        <!-- Production Line Card -->
+        <div class="card">
+          <div class="card-label">LINEA DE PRODUCCION</div>
+          <div class="card-value" id="productionLine">line</div>
+        </div>
+
+        <!-- Current Time Card -->
+        <div class="card">
+          <div class="card-label">HORA Y FECHA</div>
+          <div class="time-date" id="currentDate"></div>
+          <div class="time-clock" id="currentTime"></div>
+        </div>
+      </div>
+
+      <!-- Main Production Cards -->
+      <div class="main-grid">
+        <!-- Goal Card -->
+        <div class="card main-card">
+          <div class="main-card-content">
+            <div class="main-card-label">OBJETIVO</div>
+            <div class="main-card-value" id="goal">0</div>
+            <div class="main-card-subtitle">Unidades de Produccion</div>
+          </div>
+        </div>
+
+        <!-- Progress Card -->
+        <div class="card main-card">
+          <div class="main-card-content">
+            <div class="main-card-label">PROGRESO</div>
+            <div class="main-card-value progress-value" id="completed">0</div>
+            <div class="main-card-subtitle">Unidades Completadas</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="error" class="hidden"></div>
+  </body>
+
+  <script type="module">
+    const completed = document.querySelector("#completed");
+    const goal = document.querySelector("#goal");
+    const model = document.querySelector("#model");
+    const productionLine = document.querySelector("#productionLine");
+    const currentTime = document.querySelector("#currentTime");
+    const currentDate = document.querySelector("#currentDate");
+    const dataDiv = document.querySelector("#data");
+
+    function updateTime() {
+      const now = new Date();
+      const timeString = now.toLocaleTimeString("es-ES", {
+        hour12: false,
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+      });
+      const dateString = now.toLocaleDateString("es-ES", {
+        month: "2-digit",
+        day: "2-digit",
+        year: "numeric",
+      });
+      currentTime.textContent = timeString;
+      currentDate.textContent = dateString;
+    }
+
+    async function updateProgress() {
+      const error = document.querySelector("#error");
+      let res;
+
+      function calculateGoal(goal) {
+        const start = new Date();
+        start.setHours(6, 0, 0, 0); // 6:00 AM
+
+        const end = new Date();
+        end.setHours(17, 30, 0, 0); // 5:30 PM
+
+        const now = new Date();
+
+        if (now < start) return 0;
+        if (now > end) now.setTime(end.getTime());
+
+        const totalMinutes = (end.getTime() - start.getTime()) / 60000;
+        const elapsedMinutes = (now.getTime() - start.getTime()) / 60000;
+
+        const expectedUnits = (elapsedMinutes / totalMinutes) * goal;
+        return Math.floor(expectedUnits); // opcional: redondear hacia abajo
+      }
+
+      try {
+        res = await fetch(dataDiv.dataset.apiBase + "/displays");
+        const data = await res.json();
+        if (!res.ok) return (error.textContent = data.ip);
+        completed.textContent = data.produced;
+        goal.textContent = calculateGoal(data.goal);
+        model.textContent = data.model;
+        productionLine.textContent = data.line;
+      } catch (err) {
+        console.log(err);
+        error.textContent = err.message;
+      } finally {
+        if (res?.ok) {
+          error.classList.add("hidden");
+        } else {
+          error.classList.remove("hidden");
+        }
+      }
+    }
+
+    function initDashboard() {
+      updateTime();
+      setInterval(updateTime, 1000);
+
+      updateProgress();
+      setInterval(updateProgress, 1000);
+    }
+    initDashboard();
+  </script>
+</html>

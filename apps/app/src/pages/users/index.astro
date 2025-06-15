@@ -1,0 +1,8 @@
+---
+import Layout from "../../layouts/app.astro";
+import { Users } from "./Users";
+---
+
+<Layout>
+  <Users client:only="react" />
+</Layout>

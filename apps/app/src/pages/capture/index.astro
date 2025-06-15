@@ -1,0 +1,10 @@
+---
+import { Toaster } from "sonner";
+import { Capture } from "./Capture";
+import Layout from "@/layouts/basic.astro";
+---
+
+<Layout title="capture">
+  <Capture client:only="react" />
+  <Toaster client:load richColors position="top-center" />
+</Layout>

@@ -45,6 +45,7 @@ export async function createDay(req: Request, res: Response) {
     date: body.date,
     line_id: body.line_id,
     employees: body.employees,
+    model_id: body.model_id,
   })}`;
   res.send();
 }
