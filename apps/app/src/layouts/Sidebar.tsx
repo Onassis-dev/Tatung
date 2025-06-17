@@ -57,7 +57,7 @@ export function AppSidebar() {
   return (
     <div className="p-2 h-[calc(100vh-0.25rem)]">
       <Card className="flex flex-col gap-2 border-r h-full p-4">
-        <div className="flex items-center gap-2 mb-2 border-b p-3">
+        <div className="flex items-center gap-2 mb-2 border-b p-3 pt-0">
           <Building className="size-5" />
           <span className="text-md font-medium ">Tatung</span>
         </div>

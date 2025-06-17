@@ -32,7 +32,7 @@ export function Ips() {
 
   return (
     <>
-      <OptionsGrid>
+      <OptionsGrid title="Ips" subtitle="Define las ips de los displays">
         <IpsForm
           show={showForm}
           setShow={setShowForm}

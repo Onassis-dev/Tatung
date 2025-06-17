@@ -1,0 +1,29 @@
+services:
+  db:
+    image: postgres:17
+    restart: always
+    env_file: ./apps/db/.env
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    ports:
+      - "5435:5432"
+
+  api:
+    build: ./apps/api
+    restart: always
+    env_file: ./apps/api/.env
+    depends_on:
+      - db
+    ports:
+      - "3000:3000"
+
+  web:
+    build: ./apps/app
+    restart: always
+    depends_on:
+      - api
+    ports:
+      - "8080:4321"
+
+volumes:
+  db_data:

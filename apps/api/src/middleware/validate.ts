@@ -7,7 +7,7 @@ export function validate<T extends z4.$ZodObject>(
   res: Response,
 ): z4.infer<T> | null {
   try {
-    return schema.parse(body);
+    return (schema as any).parse(body);
   } catch (error) {
     console.log(error);
     res.status(400).send({ error: 'Invalid data', details: error });

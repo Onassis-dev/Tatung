@@ -89,8 +89,12 @@ body {
   margin-bottom: 16px;
 }
 
-.progress-value {
+.progress-good {
   color: #10b981;
+}
+
+.progress-bad {
+  color: #ef4444;
 }
 
 .main-card-subtitle {

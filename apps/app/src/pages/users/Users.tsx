@@ -51,7 +51,7 @@ export function Users() {
 
   return (
     <>
-      <OptionsGrid>
+      <OptionsGrid title="Usuarios" subtitle="Define los usuarios del sistema">
         <UsersForm
           show={showForm}
           setShow={setShowForm}

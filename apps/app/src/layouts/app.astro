@@ -3,6 +3,7 @@ import "../styles/global.css";
 import { Toaster } from "react-hot-toast";
 import { AppSidebar } from "./Sidebar";
 import { ClientRouter } from "astro:transitions";
+import { Header } from "./Header";
 ---
 
 <html lang="en">
@@ -13,7 +14,7 @@ import { ClientRouter } from "astro:transitions";
     <title>Tatung</title>
     <ClientRouter />
   </head>
-  <body class="grid grid-cols-[16rem_1fr] bg-[#F5F5F5]">
+  <body class="grid grid-cols-[16rem_1fr] bg-gray-50">
     <AppSidebar client:only="react" transition:persist />
     <main class="p-12">
       <slot />

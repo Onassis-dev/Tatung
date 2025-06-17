@@ -10,13 +10,15 @@ import { queryClient } from "@/lib/query";
 import { useQuery } from "@tanstack/react-query";
 import {
   CheckCircle2,
-  CircleArrowUp,
   GitCommitHorizontal,
+  LoaderCircle,
   Monitor,
   QrCode,
   XCircle,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+
+let lastParts: string[] = [];
 
 export function Capture() {
   const client = useStore(queryClient);
@@ -72,8 +74,9 @@ export function Capture() {
   }
 
   async function complete() {
+    setShowComplete(true);
     try {
-      await api.post("/displays/scan", { parts });
+      await api.post("/displays/scan", { parts: lastParts });
       setSuccessState(true);
       setTimeout(reset, 1500);
     } catch (error: any) {
@@ -117,6 +120,11 @@ export function Capture() {
                       e.target.value,
                       ...parts.slice(i + 1),
                     ]);
+                    lastParts = [
+                      ...parts.slice(0, i),
+                      e.target.value,
+                      ...parts.slice(i + 1),
+                    ];
                     if (data.parts.includes(e.target.value)) {
                       e.target.blur();
                       const nextInput =
@@ -126,7 +134,7 @@ export function Capture() {
                       if (nextInput) {
                         (nextInput as HTMLInputElement).focus();
                       } else {
-                        setShowComplete(true);
+                        complete();
                       }
                     }
                   }}
@@ -136,7 +144,7 @@ export function Capture() {
             <Button
               disabled={!data?.parts || data?.parts?.length === 0}
               className="mt-4"
-              onClick={() => setShowComplete(true)}
+              onClick={complete}
             >
               Completar
             </Button>
@@ -151,10 +159,6 @@ export function Capture() {
             successState && "bg-green-50 text-green-400",
             invalidState && "bg-red-50 text-red-400"
           )}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") complete();
-            if (e.key === "Escape") reset();
-          }}
         >
           {successState && (
             <>
@@ -170,8 +174,8 @@ export function Capture() {
           )}
           {!successState && !invalidState && (
             <>
-              <CircleArrowUp className="size-32" strokeWidth={1} />
-              <p>Confirmar</p>
+              <LoaderCircle className="size-32 animate-spin" strokeWidth={1} />
+              <p>Confirmando</p>
             </>
           )}
         </DialogContent>

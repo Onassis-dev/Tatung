@@ -32,7 +32,7 @@ export function Models() {
 
   return (
     <>
-      <OptionsGrid>
+      <OptionsGrid title="Modelos" subtitle="Define los modelos de productos">
         <ModelsForm
           show={showForm}
           setShow={setShowForm}

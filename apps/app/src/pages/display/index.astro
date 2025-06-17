@@ -50,7 +50,7 @@ const apiBase = import.meta.env.PUBLIC_API_BASE;
         <div class="card main-card">
           <div class="main-card-content">
             <div class="main-card-label">PROGRESO</div>
-            <div class="main-card-value progress-value" id="completed">0</div>
+            <div class="main-card-value progress-good" id="completed">0</div>
             <div class="main-card-subtitle">Unidades Completadas</div>
           </div>
         </div>
@@ -117,6 +117,12 @@ const apiBase = import.meta.env.PUBLIC_API_BASE;
         goal.textContent = calculateGoal(data.goal);
         model.textContent = data.model;
         productionLine.textContent = data.line;
+
+        if (data.produced >= calculateGoal(data.goal)) {
+          completed.classList.remove("progress-bad");
+        } else {
+          completed.classList.add("progress-bad");
+        }
       } catch (err) {
         console.log(err);
         error.textContent = err.message;

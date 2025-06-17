@@ -32,7 +32,7 @@ export function Lines() {
 
   return (
     <>
-      <OptionsGrid>
+      <OptionsGrid title="Lineas" subtitle="Define las líneas de producción">
         <LinesForm
           show={showForm}
           setShow={setShowForm}

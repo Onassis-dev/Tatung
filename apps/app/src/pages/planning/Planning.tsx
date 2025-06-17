@@ -73,7 +73,10 @@ export function Planning() {
 
   return (
     <>
-      <OptionsGrid>
+      <OptionsGrid
+        title="Planeación"
+        subtitle="Define la producción de cada línea para una fecha específica"
+      >
         <DatePicker date={date} setDate={setDate} />
       </OptionsGrid>
 

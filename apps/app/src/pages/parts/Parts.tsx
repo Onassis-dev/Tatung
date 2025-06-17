@@ -32,7 +32,10 @@ export function Parts() {
 
   return (
     <>
-      <OptionsGrid>
+      <OptionsGrid
+        title="Partes"
+        subtitle="Define los componentes de los modelos"
+      >
         <PartsForm
           show={showForm}
           setShow={setShowForm}
