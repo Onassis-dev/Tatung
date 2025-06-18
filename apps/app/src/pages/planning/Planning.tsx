@@ -16,9 +16,9 @@ import { TZDate } from "react-day-picker";
 
 const now = new Date();
 const todayInTZ = new TZDate(
-  now.getUTCFullYear(),
-  now.getUTCMonth(),
-  now.getUTCDate(),
+  now.getFullYear(),
+  now.getMonth(),
+  now.getDate(),
   "UTC"
 );
 

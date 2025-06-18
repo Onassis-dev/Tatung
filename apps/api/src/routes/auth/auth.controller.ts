@@ -29,5 +29,6 @@ export async function login(req: Request, res: Response) {
     maxAge: 1000 * 60 * 60 * 24 * 7,
   });
 
-  return res.send();
+  delete user.password;
+  return res.send({ user });
 }

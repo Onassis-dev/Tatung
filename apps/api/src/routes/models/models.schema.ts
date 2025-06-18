@@ -8,7 +8,12 @@ export const getModelsSchema = z.object({
 export const createModelSchema = z.object({
   code: z.string(),
   time: z.coerce.number(),
-  parts: z.array(z.coerce.number().int()),
+  parts: z.array(
+    z.object({
+      id: idSchema,
+      amount: z.coerce.number().int().min(1),
+    }),
+  ),
 });
 
 export const editModelSchema = createModelSchema.extend({

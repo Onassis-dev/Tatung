@@ -25,7 +25,8 @@ export function LoginForm({
 
   const submit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    await api.post("/auth/login", formData);
+    const { data } = await api.post("/auth/login", formData);
+    localStorage.setItem("user", JSON.stringify(data.user));
     navigate("/home");
   };
 

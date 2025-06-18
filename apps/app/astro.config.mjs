@@ -12,6 +12,10 @@ export default defineConfig({
     plugins: [tailwindcss()],
   },
 
+  prefetch: {
+    prefetchAll: true,
+  },
+
   devToolbar: {
     enabled: false,
   },

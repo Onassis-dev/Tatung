@@ -20,13 +20,16 @@ interface props {
 const baseData = {
   code: "",
   time: "",
-  parts: [] as string[],
+  parts: [] as { id: string; amount: string }[],
 };
 
 export function ModelsForm({ show, setShow, selectedRow }: props) {
   const client = useStore(queryClient);
   const [data, setData] = useState(baseData);
-  const [newPart, setNewPart] = useState("");
+  const [newPart, setNewPart] = useState<{
+    id: string;
+    amount: string;
+  } | null>(null);
 
   const submit = async () => {
     if (selectedRow) await api.put("/models", data);
@@ -71,19 +74,22 @@ export function ModelsForm({ show, setShow, selectedRow }: props) {
       </Label>
 
       <Label title="Partes">
-        {data.parts.map((id) => (
+        {data.parts.map((part) => (
           <div
-            key={id}
-            className="grid grid-cols-[1fr_auto] gap-2 border rounded-md p-0 pl-3 items-center"
+            key={part.id}
+            className="grid grid-cols-[1fr_auto_auto] gap-2 border rounded-md p-0 pl-3 items-center"
           >
-            {parts?.find((p: any) => p.value === id)?.label}
+            <span className="w-full">
+              {parts?.find((p: any) => p.value === Number(part.id))?.label}
+            </span>
+            {part.amount}
             <Button
               variant="ghost"
               size="icon"
               onClick={() =>
                 setData({
                   ...data,
-                  parts: data.parts.filter((p: any) => p !== id),
+                  parts: data.parts.filter((p: any) => p.id !== part.id),
                 })
               }
             >
@@ -91,22 +97,35 @@ export function ModelsForm({ show, setShow, selectedRow }: props) {
             </Button>
           </div>
         ))}
-        <div className="grid grid-cols-[1fr_auto] gap-2">
+        <div className="grid grid-cols-[1fr_auto_auto] gap-2">
           <SelectOption
             options={parts}
-            value={newPart}
-            onChange={(value) => setNewPart(value)}
+            value={newPart?.id ?? ""}
+            onChange={(value) => setNewPart({ id: value, amount: "1" })}
+          />
+          <Input
+            placeholder="Cantidad"
+            value={newPart?.amount}
+            onChange={(e) =>
+              setNewPart({
+                id: newPart?.id ?? "",
+                amount: e.target.value,
+              })
+            }
           />
           <Button
             variant="outline"
             size="icon"
             onClick={() => {
-              if (newPart && !data.parts.includes(newPart))
+              if (
+                newPart &&
+                !data.parts.some((p) => Number(p.id) === Number(newPart.id))
+              )
                 setData({
                   ...data,
                   parts: [...data.parts, newPart],
                 });
-              setNewPart("");
+              setNewPart(null);
             }}
           >
             <Plus />

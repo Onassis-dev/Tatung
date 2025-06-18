@@ -1,10 +1,8 @@
 import { Input } from "@/components/ui/input";
 import api from "@/lib/server";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { toast } from "sonner";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { useStore } from "@nanostores/react";
 import { queryClient } from "@/lib/query";
 import { useQuery } from "@tanstack/react-query";
@@ -17,6 +15,7 @@ import {
   XCircle,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { toast, Toaster } from "sonner";
 
 let lastParts: string[] = [];
 
@@ -28,6 +27,12 @@ export function Capture() {
   const [showComplete, setShowComplete] = useState(false);
   const [successState, setSuccessState] = useState(false);
   const [invalidState, setInvalidState] = useState(false);
+  const [model, setModel] = useState("");
+  const [validModel, setValidModel] = useState(false);
+  const [ledsAmount, setLedsAmount] = useState(0);
+
+  const partsDiv = useRef<HTMLDivElement>(null);
+  const modelInput = useRef<HTMLInputElement>(null);
 
   const { data } = useQuery(
     {
@@ -49,6 +54,9 @@ export function Capture() {
         return null;
       }
 
+      setLedsAmount(
+        data.parts.reduce((acc: number, part: any) => acc + part.amount, 0)
+      );
       setShowError(false);
     } catch (error: any) {
       if (error?.response?.data?.ip) {
@@ -65,28 +73,42 @@ export function Capture() {
 
   function reset() {
     setShowComplete(false);
-    setParts(new Array(data?.parts?.length || 0).fill(""));
+    setParts(new Array(ledsAmount).fill(""));
     setTimeout(() => {
+      setModel("");
+      setError("");
+      setValidModel(false);
       setSuccessState(false);
       setInvalidState(false);
-      document.getElementById("parts")?.querySelector("input")?.focus();
+      modelInput.current?.focus();
     }, 200);
   }
 
   async function complete() {
     setShowComplete(true);
     try {
-      await api.post("/displays/scan", { parts: lastParts });
+      await api.post("/displays/scan", { parts: lastParts, model });
       setSuccessState(true);
       setTimeout(reset, 1500);
     } catch (error: any) {
+      setError(error.response.data);
       setInvalidState(true);
-      setTimeout(reset, 1500);
+      setTimeout(reset, 2000);
     }
   }
 
+  useEffect(() => {
+    if (partsDiv.current && validModel) {
+      partsDiv.current.querySelector("input")?.focus();
+    }
+    if (modelInput.current && !validModel) {
+      modelInput.current.focus();
+    }
+  }, [partsDiv, validModel, modelInput]);
+
   return (
     <>
+      <Toaster position="top-center" richColors />
       <div className="w-screen h-screen flex flex-col items-center justify-center bg-[#F5F5F5]">
         <Card className="p-6">
           <div className="grid grid-cols-2 gap-4 border-b pb-4">
@@ -105,27 +127,31 @@ export function Capture() {
               <Input value={data?.model} readOnly className="bg-accent" />
             </div>
           </div>
-          <div className="grid gap-4 items-center" id="parts">
-            {data?.parts?.map((part: any, i: number) => (
-              <div className="grid gap-1">
-                <span className="text-sm ml-0.5 flex items-center gap-2 font-medium">
-                  <QrCode className="size-4" />
-                  {`Scan ${i + 1}:`}
-                </span>
-                <Input
-                  value={parts[i] || ""}
-                  onChange={(e) => {
-                    setParts([
-                      ...parts.slice(0, i),
-                      e.target.value,
-                      ...parts.slice(i + 1),
-                    ]);
-                    lastParts = [
-                      ...parts.slice(0, i),
-                      e.target.value,
-                      ...parts.slice(i + 1),
-                    ];
-                    if (data.parts.includes(e.target.value)) {
+
+          {validModel ? (
+            <div className="grid gap-4 items-center" ref={partsDiv}>
+              {Array.from({ length: ledsAmount }).map((_, i) => (
+                <div className="grid gap-1">
+                  <span className="text-sm ml-0.5 flex items-center gap-2 font-medium">
+                    <QrCode className="size-4" />
+                    {`Led ${i + 1}:`}
+                  </span>
+                  <Input
+                    value={parts[i] || ""}
+                    onChange={(e) => {
+                      setParts([
+                        ...parts.slice(0, i),
+                        e.target.value,
+                        ...parts.slice(i + 1),
+                      ]);
+                      lastParts = [
+                        ...parts.slice(0, i),
+                        e.target.value,
+                        ...parts.slice(i + 1),
+                      ];
+
+                      if (e.target.value.length !== 22) return;
+
                       e.target.blur();
                       const nextInput =
                         e.target.parentElement?.nextElementSibling?.querySelector(
@@ -136,19 +162,39 @@ export function Capture() {
                       } else {
                         complete();
                       }
-                    }
-                  }}
-                />
-              </div>
-            ))}
-            <Button
-              disabled={!data?.parts || data?.parts?.length === 0}
-              className="mt-4"
-              onClick={complete}
-            >
-              Completar
-            </Button>
-          </div>
+                    }}
+                  />
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="grid gap-1">
+              <span className="text-sm ml-0.5 flex items-center gap-2 font-medium">
+                <QrCode className="size-4" />
+                {`Chasis:`}
+              </span>
+              <Input
+                ref={modelInput}
+                value={model}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  if (value.length !== 35) {
+                    setModel(e.target.value);
+                    return;
+                  }
+                  if (value.slice(4, 14) === data?.model) {
+                    setModel(e.target.value);
+                    setValidModel(true);
+                    toast.success("Chasis valido");
+                  } else {
+                    toast.error("Chasis no valido");
+                    setModel("");
+                    setValidModel(false);
+                  }
+                }}
+              />
+            </div>
+          )}
         </Card>
       </div>
 
@@ -169,7 +215,7 @@ export function Capture() {
           {invalidState && (
             <>
               <XCircle className="size-32" strokeWidth={1} />
-              <p>Invalido</p>
+              <p>{error}</p>
             </>
           )}
           {!successState && !invalidState && (
