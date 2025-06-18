@@ -29,7 +29,7 @@ body {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 32px;
-  height: calc(100% - 150px);
+  height: calc(100% - 400px);
   margin-bottom: 32px;
 }
 
@@ -173,6 +173,38 @@ body {
   padding: 8px 16px;
   border-radius: 6px;
   font-weight: bold;
+}
+
+#hours {
+  height: 220px;
+  display: flex;
+  padding: 0;
+}
+
+.hours-column {
+  display: grid;
+  flex: 1;
+  grid-template-rows: 1fr 1fr 1fr;
+  height: 100%;
+}
+
+.hours-row {
+  display: flex;
+  border-bottom: 1px solid #374151;
+  border-right: 1px solid #374151;
+  align-items: center;
+  color: #9ca3af;
+  padding: 16px;
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.hour-good {
+  color: #10b981;
+}
+
+.hour-bad {
+  color: #ff0000;
 }
 
 #error {

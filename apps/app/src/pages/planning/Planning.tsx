@@ -2,7 +2,6 @@ import api from "@/lib/server";
 import { useQuery } from "@tanstack/react-query";
 import { queryClient } from "@/lib/query";
 import { useStore } from "@nanostores/react";
-import usePagination from "@/hooks/use-pagination";
 import useSelectedRow from "@/hooks/use-selected-row";
 import { DeleteDialog } from "@/components/ui/delete-dialog";
 import { useEffect, useState } from "react";
@@ -13,6 +12,7 @@ import { CreateDay } from "./CreateDay";
 import { EditDay } from "./EditDay";
 import { Button } from "@/components/ui/button";
 import { TZDate } from "react-day-picker";
+import { SelectOption } from "@/components/ui/select-option";
 
 const now = new Date();
 const todayInTZ = new TZDate(
@@ -24,38 +24,44 @@ const todayInTZ = new TZDate(
 
 export function Planning() {
   const client = useStore(queryClient);
-  const page = usePagination();
   const { selectedRow, setSelectedRow } = useSelectedRow();
   const [openDelete, setOpenDelete] = useState(false);
   const [data, setData] = useState<any[]>([]);
   const [date, setDate] = useState(todayInTZ);
+  const [turn, setTurn] = useState<any>(null);
 
   const { data: lines } = useQuery(
     {
-      queryKey: ["days/lines", page.get],
-      queryFn: async () =>
-        (await api.get("/days/lines", { params: { page: page.get } })).data,
+      queryKey: ["days/lines"],
+      queryFn: async () => (await api.get("/days/lines")).data,
+    },
+    client
+  );
+  const { data: turns } = useQuery(
+    {
+      queryKey: ["days/turns"],
+      queryFn: async () => (await api.get("/days/turns")).data,
     },
     client
   );
   const { data: models } = useQuery(
     {
-      queryKey: ["days/models", page.get],
-      queryFn: async () =>
-        (await api.get("/days/models", { params: { page: page.get } })).data,
+      queryKey: ["days/models"],
+      queryFn: async () => (await api.get("/days/models")).data,
     },
     client
   );
   const { data: days } = useQuery(
     {
-      queryKey: ["days", date],
+      queryKey: ["days", date, turn],
       queryFn: async () =>
         (
           await api.get("/days", {
-            params: { date: date },
+            params: { date: date, turn_id: turn },
           })
         ).data,
       refetchInterval: 3000,
+      enabled: !!turn,
     },
     client
   );
@@ -71,6 +77,10 @@ export function Planning() {
     }
   }, [lines, days]);
 
+  useEffect(() => {
+    if (turns) setTurn(turns[0].value);
+  }, [turns]);
+
   return (
     <>
       <OptionsGrid
@@ -78,6 +88,12 @@ export function Planning() {
         subtitle="Define la producción de cada línea para una fecha específica"
       >
         <DatePicker date={date} setDate={setDate} />
+        <SelectOption
+          className="w-32"
+          value={turn}
+          onChange={(value) => setTurn(value)}
+          options={turns || []}
+        />
       </OptionsGrid>
 
       <div className="w-full grid grid-cols-3 gap-6 mt-4">
@@ -101,7 +117,7 @@ export function Planning() {
                   </Button>
                 </>
               ) : (
-                <CreateDay models={models} row={row} date={date} />
+                <CreateDay models={models} row={row} date={date} turn={turn} />
               )}
             </CardContent>
           </Card>

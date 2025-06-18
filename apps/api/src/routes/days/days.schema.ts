@@ -3,19 +3,25 @@ import { idSchema } from '../../utils/schemas';
 
 export const getDaysSchema = z.object({
   date: z.coerce.date(),
+  turn_id: idSchema,
 });
 
 export const createDaySchema = z.object({
   date: z.coerce.date(),
+  turn_id: idSchema,
   model_id: idSchema,
   line_id: idSchema,
-  employees: z.coerce.number(),
+  goal: z.coerce.number().int().min(0),
 });
 
 export const editDaySchema = z.object({
   id: idSchema,
   model: z.string(),
-  employees: z.coerce.number(),
-  time: z.coerce.number(),
-  produced: z.coerce.number(),
+  hours: z.array(
+    z.object({
+      hour: z.coerce.number().int().min(0),
+      goal: z.coerce.number().int().min(0),
+      prod: z.coerce.number().int().min(0),
+    }),
+  ),
 });

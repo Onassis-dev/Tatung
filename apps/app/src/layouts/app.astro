@@ -16,7 +16,7 @@ import { Header } from "./Header";
   </head>
   <body class="grid grid-cols-[16rem_1fr] bg-gray-50">
     <AppSidebar client:only="react" transition:persist />
-    <main class="p-12">
+    <main class="p-12 overflow-y-auto h-screen">
       <slot />
     </main>
   </body><Toaster position="top-center" client:load />

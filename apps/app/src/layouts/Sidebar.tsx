@@ -9,6 +9,7 @@ import {
   Settings,
   CircleCheck,
   LogOut,
+  Clock,
 } from "lucide-react";
 import { SidebarButton } from "@/components/ui/sidebar";
 import { Card } from "@/components/ui/card";
@@ -59,6 +60,12 @@ const items: {
     url: "/lines",
     permission: "p_planning",
     Icon: FlipVertical,
+  },
+  {
+    title: "Turnos",
+    url: "/turns",
+    permission: "p_planning",
+    Icon: Clock,
   },
   {
     title: "Usuarios",

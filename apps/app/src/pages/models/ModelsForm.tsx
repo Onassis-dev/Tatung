@@ -19,7 +19,6 @@ interface props {
 
 const baseData = {
   code: "",
-  time: "",
   parts: [] as { id: string; amount: string }[],
 };
 
@@ -64,12 +63,6 @@ export function ModelsForm({ show, setShow, selectedRow }: props) {
         <Input
           value={data.code}
           onChange={(e) => setData({ ...data, code: e.target.value })}
-        />
-      </Label>
-      <Label title="Minutos">
-        <Input
-          value={data.time}
-          onChange={(e) => setData({ ...data, time: e.target.value })}
         />
       </Label>
 

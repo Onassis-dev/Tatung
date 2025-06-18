@@ -7,10 +7,10 @@ import usePagination from "@/hooks/use-pagination";
 import useSelectedRow from "@/hooks/use-selected-row";
 import { DeleteDialog } from "@/components/ui/delete-dialog";
 import { useEffect, useState } from "react";
-import { ModelsForm } from "./ModelsForm";
+import { TurnsForm } from "./TurnsForm";
 import { OptionsGrid } from "@/components/ui/grids";
 
-export function Models() {
+export function Turns() {
   const client = useStore(queryClient);
   const page = usePagination();
   const { selectedRow, setSelectedRow } = useSelectedRow();
@@ -19,9 +19,9 @@ export function Models() {
 
   const { data, status } = useQuery(
     {
-      queryKey: ["models", page.get],
+      queryKey: ["turns", page.get],
       queryFn: async () =>
-        (await api.get("/models", { params: { page: page.get } })).data,
+        (await api.get("/turns", { params: { page: page.get } })).data,
     },
     client
   );
@@ -32,8 +32,8 @@ export function Models() {
 
   return (
     <>
-      <OptionsGrid title="Modelos" subtitle="Define los modelos de productos">
-        <ModelsForm
+      <OptionsGrid title="Turnos" subtitle="Define los turnos de producción">
+        <TurnsForm
           show={showForm}
           setShow={setShowForm}
           selectedRow={selectedRow}
@@ -48,15 +48,19 @@ export function Models() {
         setOpenEdit={setShowForm}
         setOpenDelete={setOpenDelete}
         pagination={page}
-        columns={[{ title: "Codigo", data: "code" }]}
+        columns={[
+          { title: "Nombre", data: "name" },
+          { title: "Inicio", data: "start" },
+          { title: "Fin", data: "end" },
+        ]}
       />
 
       <DeleteDialog
         open={openDelete}
         setOpen={setOpenDelete}
-        title="Eliminar modelo"
-        description="¿Estás seguro de querer eliminar este modelo?"
-        path="models"
+        title="Eliminar turna"
+        description="¿Estás seguro de querer eliminar esta turna?"
+        path="turns"
         id={selectedRow?.id}
       />
     </>

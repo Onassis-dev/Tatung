@@ -1,10 +1,6 @@
 import { Request, Response } from 'express';
 import { validate } from '@/middleware/validate';
-import {
-  createModelSchema,
-  editModelSchema,
-  getModelsSchema,
-} from './models.schema';
+import { createModelSchema, editModelSchema, getModelsSchema } from './models.schema';
 import sql from '@/utils/db';
 import { deleteSchema } from '@/utils/schemas';
 
@@ -41,7 +37,6 @@ export async function createModel(req: Request, res: Response) {
   await sql.begin(async (sql) => {
     const [row] = await sql`insert into models ${sql({
       code: body.code,
-      time: body.time,
     })} returning id`;
 
     await sql`insert into models_parts ${sql(
@@ -65,7 +60,6 @@ export async function editModel(req: Request, res: Response) {
 
     await sql`update models set ${sql({
       code: body.code,
-      time: body.time,
     })} where id = ${body.id}`;
 
     await sql`insert into models_parts ${sql(

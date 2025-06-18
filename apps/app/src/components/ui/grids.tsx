@@ -16,7 +16,7 @@ const OptionsGrid = ({ className, children, title, subtitle }: props) => {
         <h2 className="text-2xl font-bold">{title}</h2>
         <p className="text-muted-foreground">{subtitle}</p>
       </div>
-      {children}
+      <div className="flex gap-2">{children}</div>
     </div>
   );
 };

@@ -12,6 +12,7 @@ import { daysRouter } from './routes/days/days.routes';
 import { ipsRouter } from './routes/ips/ips.routes';
 import { displaysRouter } from './routes/displays/displays.routes';
 import { producedRouter } from './routes/produced/produced.routes';
+import { turnsRouter } from './routes/turns/turns.routes';
 
 process.env.TZ = 'UTC';
 
@@ -45,11 +46,8 @@ app.use('/parts', authenticate('models') as RequestHandler, partsRouter);
 app.use('/models', authenticate('models') as RequestHandler, modelsRouter);
 app.use('/lines', authenticate('planning') as RequestHandler, linesRouter);
 app.use('/days', authenticate('planning') as RequestHandler, daysRouter);
-app.use(
-  '/produced',
-  authenticate('planning') as RequestHandler,
-  producedRouter,
-);
+app.use('/produced', authenticate('planning') as RequestHandler, producedRouter);
+app.use('/turns', authenticate('planning') as RequestHandler, turnsRouter);
 
 app.listen(port, '0.0.0.0', () => {
   console.log(`Example app listening on port ${port}`);

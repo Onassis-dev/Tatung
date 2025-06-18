@@ -55,19 +55,28 @@ const apiBase = import.meta.env.PUBLIC_API_BASE;
           </div>
         </div>
       </div>
+
+      <div class="card" id="hours">
+        <div class="hours-column">
+          <div class="hours-row">Hora</div>
+          <div class="hours-row">Meta</div>
+          <div class="hours-row">Producido</div>
+        </div>
+      </div>
     </div>
 
     <div id="error" class="hidden"></div>
   </body>
 
   <script type="module">
-    const completed = document.querySelector("#completed");
-    const goal = document.querySelector("#goal");
+    const completedDiv = document.querySelector("#completed");
+    const goalDiv = document.querySelector("#goal");
     const model = document.querySelector("#model");
     const productionLine = document.querySelector("#productionLine");
     const currentTime = document.querySelector("#currentTime");
     const currentDate = document.querySelector("#currentDate");
     const dataDiv = document.querySelector("#data");
+    const hours = document.querySelector("#hours");
 
     function updateTime() {
       const now = new Date();
@@ -90,39 +99,50 @@ const apiBase = import.meta.env.PUBLIC_API_BASE;
       const error = document.querySelector("#error");
       let res;
 
-      function calculateGoal(goal) {
-        const start = new Date();
-        start.setHours(6, 0, 0, 0); // 6:00 AM
-
-        const end = new Date();
-        end.setHours(17, 30, 0, 0); // 5:30 PM
-
-        const now = new Date();
-
-        if (now < start) return 0;
-        if (now > end) now.setTime(end.getTime());
-
-        const totalMinutes = (end.getTime() - start.getTime()) / 60000;
-        const elapsedMinutes = (now.getTime() - start.getTime()) / 60000;
-
-        const expectedUnits = (elapsedMinutes / totalMinutes) * goal;
-        return Math.floor(expectedUnits); // opcional: redondear hacia abajo
-      }
-
       try {
         res = await fetch(dataDiv.dataset.apiBase + "/displays");
         const data = await res.json();
         if (!res.ok) return (error.textContent = data.ip);
-        completed.textContent = data.produced;
-        goal.textContent = calculateGoal(data.goal);
         model.textContent = data.model;
         productionLine.textContent = data.line;
 
-        if (data.produced >= calculateGoal(data.goal)) {
-          completed.classList.remove("progress-bad");
-        } else {
-          completed.classList.add("progress-bad");
+        // Elimina todos los elementos temporales de una vez
+        hours.querySelectorAll(".hours-temp").forEach((el) => el.remove());
+
+        const fragment = document.createDocumentFragment();
+
+        for (const { hour, goal, prod } of data.hours) {
+          const hourColumn = document.createElement("div");
+          hourColumn.classList.add("hours-column", "hours-temp");
+
+          const values = [hour, goal, prod];
+          values.forEach((value, index) => {
+            const hourRow = document.createElement("div");
+            hourRow.classList.add("hours-row");
+            if (index === 0) hourRow.textContent = value + ":00";
+            else hourRow.textContent = value;
+
+            if (index === 2) {
+              if (prod < goal) hourRow.classList.add("hour-bad");
+              else hourRow.classList.add("hour-good");
+            }
+
+            hourColumn.appendChild(hourRow);
+          });
+
+          fragment.appendChild(hourColumn);
         }
+        hours.appendChild(fragment);
+
+        const { prod, goal } = data.hours.find(
+          (h) => h.hour === new Date().getHours()
+        );
+
+        completedDiv.textContent = prod;
+        goalDiv.textContent = goal;
+
+        if (prod >= goal) completedDiv.classList.remove("progress-bad");
+        else completedDiv.classList.add("progress-bad");
       } catch (err) {
         console.log(err);
         error.textContent = err.message;
@@ -140,7 +160,7 @@ const apiBase = import.meta.env.PUBLIC_API_BASE;
       setInterval(updateTime, 1000);
 
       updateProgress();
-      setInterval(updateProgress, 1000);
+      setInterval(updateProgress, 1500);
     }
     initDashboard();
   </script>

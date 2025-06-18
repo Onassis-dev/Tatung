@@ -12,9 +12,10 @@ interface props {
   models: { label: string; value: string }[];
   row: any;
   date: Date;
+  turn: number;
 }
 
-export function CreateDay({ models, row, date }: props) {
+export function CreateDay({ models, row, date, turn }: props) {
   const client = useStore(queryClient);
   const [data, setData] = useState(row);
 
@@ -27,10 +28,10 @@ export function CreateDay({ models, row, date }: props) {
           onChange={(value) => setData({ ...data, model_id: value })}
         />
       </Label>
-      <Label title="Empleados">
+      <Label title="Meta por hora">
         <Input
-          value={data.employees || ""}
-          onChange={(e) => setData({ ...data, employees: e.target.value })}
+          value={data.goal || ""}
+          onChange={(e) => setData({ ...data, goal: e.target.value })}
         />
       </Label>
       <Button
@@ -40,7 +41,8 @@ export function CreateDay({ models, row, date }: props) {
               await api.post("/days", {
                 line_id: data.line.id,
                 model_id: data.model_id,
-                employees: data.employees,
+                turn_id: turn,
+                goal: data.goal,
                 date: date,
               });
               client.invalidateQueries({

@@ -8,6 +8,7 @@ import { queryClient } from "@/lib/query";
 import { useQuery } from "@tanstack/react-query";
 import {
   CheckCircle2,
+  Clock,
   GitCommitHorizontal,
   LoaderCircle,
   Monitor,
@@ -112,6 +113,13 @@ export function Capture() {
       <div className="w-screen h-screen flex flex-col items-center justify-center bg-[#F5F5F5]">
         <Card className="p-6">
           <div className="grid grid-cols-2 gap-4 border-b pb-4">
+            <div className="space-y-2 col-span-2">
+              <span className="flex items-center gap-2 text-sm font-medium">
+                <Monitor className="size-4" />
+                Modelo:
+              </span>
+              <Input value={data?.model} readOnly className="bg-accent" />
+            </div>
             <div className="space-y-2">
               <span className="flex items-center gap-2 text-sm font-medium">
                 <GitCommitHorizontal className="size-4" />
@@ -121,10 +129,10 @@ export function Capture() {
             </div>
             <div className="space-y-2">
               <span className="flex items-center gap-2 text-sm font-medium">
-                <Monitor className="size-4" />
-                Modelo:
+                <Clock className="size-4" />
+                Turno:
               </span>
-              <Input value={data?.model} readOnly className="bg-accent" />
+              <Input value={data?.turn} readOnly className="bg-accent" />
             </div>
           </div>
 
