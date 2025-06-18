@@ -6,4 +6,4 @@ export const displaysRouter = Router();
 displaysRouter.get('/', getDisplays);
 displaysRouter.get('/scan', getCapture);
 
-displaysRouter.post('/scan', scanModel);
+displaysRouter.post('/scan', scanModel as any);
