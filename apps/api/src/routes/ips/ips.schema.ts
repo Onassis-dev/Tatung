@@ -6,7 +6,7 @@ export const getIpsSchema = z.object({
 });
 
 export const createIpSchema = z.object({
-  ip: z.string(),
+  ip: z.ipv4('Introduce una IP válida'),
   line_id: z.string(),
 });
 

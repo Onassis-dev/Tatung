@@ -7,12 +7,14 @@ export const getModelsSchema = z.object({
 
 export const createModelSchema = z.object({
   code: z.string(),
-  parts: z.array(
-    z.object({
-      id: idSchema,
-      amount: z.coerce.number().int().min(1),
-    }),
-  ),
+  parts: z
+    .array(
+      z.object({
+        id: idSchema,
+        amount: z.coerce.number().int().min(1),
+      }),
+    )
+    .nonempty('Selecciona al menos una parte'),
 });
 
 export const editModelSchema = createModelSchema.extend({

@@ -1,11 +1,4 @@
-import {
-  CheckCircle,
-  CircleCheck,
-  CircleX,
-  Loader2,
-  LoaderCircle,
-  XCircle,
-} from "lucide-react";
+import { CircleCheck, CircleX, LoaderCircle } from "lucide-react";
 import { toast } from "react-hot-toast";
 
 interface ApiError {
@@ -23,7 +16,10 @@ export const showPromise = (promise: Promise<any>, message: string) => {
     {
       loading: "Cargando...",
       success: message || "Operación exitosa",
-      error: "Error",
+      error: (err) => {
+        if (err.response?.data?.error) return err.response?.data?.error;
+        else return "Error";
+      },
     },
     {
       success: {

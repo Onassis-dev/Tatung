@@ -1,8 +1,8 @@
 import express, { RequestHandler } from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
+import errorHandler from './middleware/errors';
 import { authenticate } from './middleware/auth';
-
 import { authRouter } from './routes/auth/auth.routes';
 import { usersRouter } from './routes/users/users.routes';
 import { partsRouter } from './routes/parts/parts.routes';
@@ -48,6 +48,8 @@ app.use('/lines', authenticate('planning') as RequestHandler, linesRouter);
 app.use('/days', authenticate('planning') as RequestHandler, daysRouter);
 app.use('/produced', authenticate('planning') as RequestHandler, producedRouter);
 app.use('/turns', authenticate('planning') as RequestHandler, turnsRouter);
+
+app.use(errorHandler);
 
 app.listen(port, '0.0.0.0', () => {
   console.log(`Example app listening on port ${port}`);

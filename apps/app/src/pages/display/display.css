@@ -14,23 +14,23 @@ body {
 
 .dashboard {
   padding: 24px;
-  height: 100vh;
+  height: 180vh;
   width: 100%;
 }
 
 .header-grid {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
-  gap: 24px;
-  margin-bottom: 32px;
+  gap: 12px;
+  margin-bottom: 12px;
 }
 
 .main-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 32px;
-  height: calc(100% - 400px);
-  margin-bottom: 32px;
+  gap: 12px;
+  height: calc(50% - 250px);
+  padding-bottom: 12px;
 }
 
 .card {
@@ -148,7 +148,7 @@ body {
 .status-left {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 12px;
 }
 
 .status-icon {
@@ -176,7 +176,7 @@ body {
 }
 
 #hours {
-  height: 220px;
+  height: 130px;
   display: flex;
   padding: 0;
 }
@@ -194,8 +194,8 @@ body {
   border-right: 1px solid #374151;
   align-items: center;
   color: #9ca3af;
-  padding: 16px;
-  font-size: 24px;
+  padding: 4px 4px;
+  font-size: 18px;
   font-weight: bold;
 }
 

@@ -12,13 +12,12 @@ export async function getModels(req: Request, res: Response) {
   SELECT 
     m.id,
     m.code,
-    m.time,
     count(*) OVER() AS count,
     COALESCE(json_agg(json_build_object('id', mp.part_id::text, 'amount', mp.amount::text)) 
             FILTER (WHERE mp.part_id IS NOT NULL), '[]'::json) AS parts
   FROM models m
   LEFT JOIN models_parts mp ON mp.model_id = m.id
-  GROUP BY m.id, m.code, m.time
+  GROUP BY m.id, m.code
   ORDER BY m.id DESC
   LIMIT 10 OFFSET ${10 * (body.page - 1)}`;
 

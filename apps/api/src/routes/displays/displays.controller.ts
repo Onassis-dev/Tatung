@@ -75,6 +75,9 @@ export async function scanModel(req: Request, res: Response) {
   const partsAreCorrectLength = body.parts.every((p) => p.length === 22);
   if (!partsAreCorrectLength) return res.status(400).send('LedBars incorrectas. (Error 1)');
 
+  const partsHaveTheSameProvider = body.parts.every((p) => p[15] === body.model[17]);
+  if (!partsHaveTheSameProvider) return res.status(400).send('Los proveedores de las LedBars no coinciden.');
+
   if (body.parts.length !== parts.reduce((acc, part) => acc + part.amount, 0)) return res.status(400).send('LedBars incorrectas. (Error 2)');
 
   for (const part of body.parts) {

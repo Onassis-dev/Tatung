@@ -17,6 +17,8 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast, Toaster } from "sonner";
+import { useDebounce } from "@uidotdev/usehooks";
+import { useSounds } from "@/hooks/use-sound";
 
 let lastParts: string[] = [];
 
@@ -31,6 +33,8 @@ export function Capture() {
   const [model, setModel] = useState("");
   const [validModel, setValidModel] = useState(false);
   const [ledsAmount, setLedsAmount] = useState(0);
+  const debouncedModel = useDebounce(model, 100);
+  const { playError, playWarn, playSuccess, playCorrect } = useSounds();
 
   const partsDiv = useRef<HTMLDivElement>(null);
   const modelInput = useRef<HTMLInputElement>(null);
@@ -90,11 +94,13 @@ export function Capture() {
     try {
       await api.post("/displays/scan", { parts: lastParts, model });
       setSuccessState(true);
-      setTimeout(reset, 1500);
+      playSuccess();
+      setTimeout(reset, 3000);
     } catch (error: any) {
       setError(error.response.data);
       setInvalidState(true);
-      setTimeout(reset, 2000);
+      playError();
+      setTimeout(reset, 5000);
     }
   }
 
@@ -107,11 +113,30 @@ export function Capture() {
     }
   }, [partsDiv, validModel, modelInput]);
 
+  useEffect(() => {
+    if (debouncedModel) {
+      if (
+        debouncedModel.slice(4, 14) === data?.model &&
+        debouncedModel.length === 35
+      ) {
+        setModel(debouncedModel);
+        setValidModel(true);
+        toast.success("Chasis valido");
+        playCorrect();
+      } else {
+        toast.error("Chasis no valido");
+        playWarn();
+        setModel("");
+        setValidModel(false);
+      }
+    }
+  }, [debouncedModel]);
+
   return (
     <>
       <Toaster position="top-center" richColors />
       <div className="w-screen h-screen flex flex-col items-center justify-center bg-[#F5F5F5]">
-        <Card className="p-6">
+        <Card className={cn("p-6", validModel && "border-green-500 border-2")}>
           <div className="grid grid-cols-2 gap-4 border-b pb-4">
             <div className="space-y-2 col-span-2">
               <span className="flex items-center gap-2 text-sm font-medium">
@@ -138,12 +163,12 @@ export function Capture() {
 
           {validModel ? (
             <div className="grid gap-4 items-center" ref={partsDiv}>
+              <span className="text-sm ml-0.5 flex items-center gap-2 font-medium">
+                <QrCode className="size-4" />
+                {`Leds:`}
+              </span>
               {Array.from({ length: ledsAmount }).map((_, i) => (
                 <div className="grid gap-1">
-                  <span className="text-sm ml-0.5 flex items-center gap-2 font-medium">
-                    <QrCode className="size-4" />
-                    {`Led ${i + 1}:`}
-                  </span>
                   <Input
                     value={parts[i] || ""}
                     onChange={(e) => {
@@ -158,7 +183,7 @@ export function Capture() {
                         ...parts.slice(i + 1),
                       ];
 
-                      if (e.target.value.length !== 22) return;
+                      if (e.target.value.length < 22) return;
 
                       e.target.blur();
                       const nextInput =
@@ -185,20 +210,7 @@ export function Capture() {
                 ref={modelInput}
                 value={model}
                 onChange={(e) => {
-                  const value = e.target.value;
-                  if (value.length !== 35) {
-                    setModel(e.target.value);
-                    return;
-                  }
-                  if (value.slice(4, 14) === data?.model) {
-                    setModel(e.target.value);
-                    setValidModel(true);
-                    toast.success("Chasis valido");
-                  } else {
-                    toast.error("Chasis no valido");
-                    setModel("");
-                    setValidModel(false);
-                  }
+                  setModel(e.target.value);
                 }}
               />
             </div>
@@ -209,7 +221,7 @@ export function Capture() {
       <Dialog open={showComplete}>
         <DialogContent
           className={cn(
-            "text-3xl !max-w-[40%] !max-h-[60%] h-full flex items-center flex-col justify-center p-0 overflow-hidden transition-all text-muted-foreground",
+            "text-3xl !max-w-[80%] !max-h-[80%] h-full flex items-center flex-col justify-center p-0 overflow-hidden transition-all text-muted-foreground",
             successState && "bg-green-50 text-green-400",
             invalidState && "bg-red-50 text-red-400"
           )}
@@ -236,7 +248,7 @@ export function Capture() {
       </Dialog>
 
       <Dialog open={showError}>
-        <DialogContent className="text-3xl !max-w-[60%] !max-h-[60%] h-full flex items-center justify-center text-red-500">
+        <DialogContent className="text-3xl !max-w-[80%] !max-h-[80%] h-full flex items-center justify-center text-red-500">
           <p>{error}</p>
         </DialogContent>
       </Dialog>
