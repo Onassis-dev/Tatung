@@ -7,6 +7,7 @@ import { useStore } from "@nanostores/react";
 import { queryClient } from "@/lib/query";
 import { useQuery } from "@tanstack/react-query";
 import {
+  AlertCircle,
   CheckCircle2,
   Clock,
   GitCommitHorizontal,
@@ -19,10 +20,12 @@ import { cn } from "@/lib/utils";
 import { toast, Toaster } from "sonner";
 import { useDebounce } from "@uidotdev/usehooks";
 import { useSounds } from "@/hooks/use-sound";
+import Timer from "./Timer";
 
 let lastParts: string[] = [];
 
 export function Capture() {
+  const { playError, playWarn, playSuccess, playCorrect } = useSounds();
   const client = useStore(queryClient);
   const [error, setError] = useState("");
   const [showError, setShowError] = useState(false);
@@ -33,8 +36,12 @@ export function Capture() {
   const [model, setModel] = useState("");
   const [validModel, setValidModel] = useState(false);
   const [ledsAmount, setLedsAmount] = useState(0);
+  const [askSupervisor, setAskSupervisor] = useState(false);
+  const [timerActive, setTimerActive] = useState(false);
+  const [supervisorCode, setSupervisorCode] = useState("");
+
   const debouncedModel = useDebounce(model, 100);
-  const { playError, playWarn, playSuccess, playCorrect } = useSounds();
+  const debouncedSupervisorCode = useDebounce(supervisorCode, 100);
 
   const partsDiv = useRef<HTMLDivElement>(null);
   const modelInput = useRef<HTMLInputElement>(null);
@@ -80,26 +87,35 @@ export function Capture() {
     setShowComplete(false);
     setParts(new Array(ledsAmount).fill(""));
     setTimeout(() => {
+      setValidModel(false);
       setModel("");
       setError("");
-      setValidModel(false);
       setSuccessState(false);
       setInvalidState(false);
+      setAskSupervisor(false);
+      setSupervisorCode("");
       modelInput.current?.focus();
     }, 200);
   }
 
   async function complete() {
     setShowComplete(true);
+    setTimerActive(false);
+    const supCode = localStorage.getItem("supervisor-code");
     try {
-      await api.post("/displays/scan", { parts: lastParts, model });
-      setSuccessState(true);
+      await api.post("/displays/scan", {
+        parts: lastParts,
+        model,
+        supervisor: supCode,
+      });
+      localStorage.removeItem("supervisor-code");
       playSuccess();
+      setSuccessState(true);
       setTimeout(reset, 3000);
     } catch (error: any) {
+      playError();
       setError(error.response.data);
       setInvalidState(true);
-      playError();
       setTimeout(reset, 5000);
     }
   }
@@ -119,18 +135,44 @@ export function Capture() {
         debouncedModel.slice(4, 14) === data?.model &&
         debouncedModel.length === 35
       ) {
+        playCorrect();
         setModel(debouncedModel);
         setValidModel(true);
         toast.success("Chasis valido");
-        playCorrect();
+        setTimerActive(true);
       } else {
-        toast.error("Chasis no valido");
         playWarn();
         setModel("");
         setValidModel(false);
+        toast.error("Chasis invalido");
       }
     }
   }, [debouncedModel]);
+
+  useEffect(() => {
+    if (askSupervisor) {
+      setTimerActive(false);
+      document.getElementById("supervisor-code")?.focus();
+    }
+  }, [askSupervisor]);
+
+  useEffect(() => {
+    if (debouncedSupervisorCode && debouncedSupervisorCode.length >= 7)
+      checkSupervisorCode();
+  }, [debouncedSupervisorCode]);
+
+  async function checkSupervisorCode() {
+    try {
+      await api.post("/displays/supervisor", { code: debouncedSupervisorCode });
+      localStorage.setItem("supervisor-code", debouncedSupervisorCode);
+      reset();
+    } catch (error: any) {
+      (document.getElementById("supervisor-code") as HTMLInputElement).value =
+        "";
+      toast.error("Codigo de supervisor invalido");
+      document.getElementById("supervisor-code")?.focus();
+    }
+  }
 
   return (
     <>
@@ -220,8 +262,9 @@ export function Capture() {
 
       <Dialog open={showComplete}>
         <DialogContent
+          showCloseButton={false}
           className={cn(
-            "text-3xl !max-w-[80%] !max-h-[80%] h-full flex items-center flex-col justify-center p-0 overflow-hidden transition-all text-muted-foreground",
+            "text-3xl !max-w-[90%] !max-h-[90%] h-full flex items-center flex-col justify-center p-0 overflow-hidden transition-all text-muted-foreground",
             successState && "bg-green-50 text-green-400",
             invalidState && "bg-red-50 text-red-400"
           )}
@@ -247,11 +290,30 @@ export function Capture() {
         </DialogContent>
       </Dialog>
 
+      <Dialog open={askSupervisor}>
+        <DialogContent showCloseButton={false}>
+          <p>Se requiere codigo de supervisor</p>
+          <Input
+            id="supervisor-code"
+            value={supervisorCode}
+            onChange={(e) => setSupervisorCode(e.target.value)}
+          />
+        </DialogContent>
+      </Dialog>
+
       <Dialog open={showError}>
-        <DialogContent className="text-3xl !max-w-[80%] !max-h-[80%] h-full flex items-center justify-center text-red-500">
+        <DialogContent
+          showCloseButton={false}
+          className="text-3xl !max-w-[80%] !max-h-[80%] h-full flex items-center justify-center text-red-500"
+        >
           <p>{error}</p>
         </DialogContent>
       </Dialog>
+
+      <Timer
+        isActive={timerActive}
+        setAskSupervisor={() => setAskSupervisor(true)}
+      />
     </>
   );
 }

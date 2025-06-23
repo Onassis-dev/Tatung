@@ -7,29 +7,21 @@ import usePagination from "@/hooks/use-pagination";
 import useSelectedRow from "@/hooks/use-selected-row";
 import { DeleteDialog } from "@/components/ui/delete-dialog";
 import { useEffect, useState } from "react";
-import { ProducedCard } from "./ProducedCard.tsx";
+import { SupervisorsForm } from "./SupervisorsForm";
 import { OptionsGrid } from "@/components/ui/grids";
-import { Input } from "@/components/ui/input";
-import { useDebounce } from "@uidotdev/usehooks";
 
-export function Produced() {
+export function Supervisors() {
   const client = useStore(queryClient);
   const page = usePagination();
   const { selectedRow, setSelectedRow } = useSelectedRow();
   const [openDelete, setOpenDelete] = useState(false);
   const [showForm, setShowForm] = useState(false);
-  const [search, setSearch] = useState("");
-  const debouncedSearch = useDebounce(search, 300);
 
   const { data, status } = useQuery(
     {
-      queryKey: ["produced", page.get, debouncedSearch],
+      queryKey: ["supervisors", page.get],
       queryFn: async () =>
-        (
-          await api.get("/produced", {
-            params: { page: page.get, search: debouncedSearch },
-          })
-        ).data,
+        (await api.get("/supervisors", { params: { page: page.get } })).data,
     },
     client
   );
@@ -40,16 +32,12 @@ export function Produced() {
 
   return (
     <>
-      <OptionsGrid title="Producido" subtitle="Consulta los modelos producidos">
-        <ProducedCard
+      <OptionsGrid title="Supervisores" subtitle="Define los supervisores">
+        <SupervisorsForm
           show={showForm}
           setShow={setShowForm}
           selectedRow={selectedRow}
-        />
-        <Input
-          placeholder="Buscar por codigo"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
+          setSelectedRow={setSelectedRow}
         />
       </OptionsGrid>
 
@@ -57,26 +45,21 @@ export function Produced() {
         data={data}
         status={status}
         setSelectedRow={setSelectedRow}
-        onRowClick={setShowForm}
-        setOpenView={setShowForm}
+        setOpenEdit={setShowForm}
         setOpenDelete={setOpenDelete}
         pagination={page}
         columns={[
           { title: "Codigo", data: "code" },
-          {
-            title: "Fecha",
-            data: "created_at",
-            transform: (value) => new Date(value).toLocaleDateString(),
-          },
+          { title: "Nombre", data: "name" },
         ]}
       />
 
       <DeleteDialog
         open={openDelete}
         setOpen={setOpenDelete}
-        title="Eliminar parte"
-        description="¿Estás seguro de querer eliminar esta parte?"
-        path="produced"
+        title="Eliminar supervisor"
+        description="¿Estás seguro de querer eliminar este supervisor?"
+        path="supervisors"
         id={selectedRow?.id}
       />
     </>

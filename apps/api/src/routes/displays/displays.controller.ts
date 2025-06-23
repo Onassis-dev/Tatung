@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { scanModelSchema } from './displays.schema';
+import { checkSupervisorSchema, scanModelSchema } from './displays.schema';
 import { validateIp } from '@/middleware/validateIp';
 import { validate } from '@/middleware/validate';
 import { getTijuanaDate, getTijuanaHour } from '@/utils/getTijuanaDate';
@@ -56,6 +56,18 @@ export async function getCapture(req: Request, res: Response) {
   res.send({ ...day, parts });
 }
 
+export async function checkSupervisor(req: Request, res: Response) {
+  const body = validate(checkSupervisorSchema, req.body, res);
+  if (!body) return;
+
+  if (body.code.length !== 7) return res.status(400).send('Codigo de supervisor invalido.');
+
+  const [supervisor] = await sql`select code from supervisors where code = ${body.code.slice(-4)}`;
+  if (!supervisor) return res.status(400).send('Codigo de supervisor invalido.');
+
+  res.send();
+}
+
 export async function scanModel(req: Request, res: Response) {
   const lineId = await validateIp(req, res);
   if (!lineId) return;
@@ -76,7 +88,11 @@ export async function scanModel(req: Request, res: Response) {
   if (!partsAreCorrectLength) return res.status(400).send('LedBars incorrectas. (Error 1)');
 
   const partsHaveTheSameProvider = body.parts.every((p) => p[15] === body.model[17]);
-  if (!partsHaveTheSameProvider) return res.status(400).send('Los proveedores de las LedBars no coinciden.');
+  if (!partsHaveTheSameProvider) return res.status(400).send('Las LedBars no tienen el mismo PROVEEDOR.');
+
+  const referenceBIN = body.parts[0].substring(12, 15);
+  const partsHaveSameBIN = body.parts.every((p) => p.substring(12, 15) === referenceBIN);
+  if (!partsHaveSameBIN) return res.status(400).send('Las LedBars no tienen el mismo BIN.');
 
   if (body.parts.length !== parts.reduce((acc, part) => acc + part.amount, 0)) return res.status(400).send('LedBars incorrectas. (Error 2)');
 
@@ -95,8 +111,14 @@ export async function scanModel(req: Request, res: Response) {
 
   try {
     await sql.begin(async (sql) => {
+      const rowData = {
+        code: body.model?.toUpperCase(),
+        sup_code: body.supervisor || null,
+      };
+
       //Insert the model-parts into the database
-      const [row] = await sql`insert into models_scanned (code) values (${body.model?.toUpperCase()}) returning id`;
+      const [row] = await sql`insert into models_scanned ${sql(rowData)} returning id`;
+
       for (const part of body.parts) {
         await sql`insert into parts_scanned (code, model_id) values (${part?.toUpperCase()}, ${row.id})`;
       }

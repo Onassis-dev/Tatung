@@ -1,0 +1,8 @@
+---
+import Layout from "../../layouts/app.astro";
+import { Dashboard } from "./Dashboard";
+---
+
+<Layout>
+  <Dashboard client:only="react" />
+</Layout>

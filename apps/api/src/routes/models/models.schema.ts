@@ -6,7 +6,7 @@ export const getModelsSchema = z.object({
 });
 
 export const createModelSchema = z.object({
-  code: z.string(),
+  code: z.string().length(10),
   parts: z
     .array(
       z.object({

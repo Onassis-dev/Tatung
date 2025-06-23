@@ -10,7 +10,7 @@ interface props {
 const OptionsGrid = ({ className, children, title, subtitle }: props) => {
   return (
     <div
-      className={cn("flex justify-between gap-2 items-center mb-2", className)}
+      className={cn("flex justify-between gap-2 items-center mb-6", className)}
     >
       <div className="grid">
         <h2 className="text-2xl font-bold">{title}</h2>

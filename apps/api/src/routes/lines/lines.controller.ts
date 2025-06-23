@@ -1,10 +1,6 @@
 import { Request, Response } from 'express';
 import { validate } from '@/middleware/validate';
-import {
-  createLineSchema,
-  editLineSchema,
-  getLinesSchema,
-} from './lines.schema';
+import { createLineSchema, editLineSchema, getLinesSchema } from './lines.schema';
 import sql from '@/utils/db';
 import { deleteSchema } from '@/utils/schemas';
 

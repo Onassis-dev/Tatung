@@ -96,7 +96,7 @@ export function Planning() {
         />
       </OptionsGrid>
 
-      <div className="w-full grid grid-cols-3 gap-6 mt-4">
+      <div className="w-full grid grid-cols-3 gap-6">
         {data.map((row: any) => (
           <Card key={row.line.id}>
             <CardHeader>

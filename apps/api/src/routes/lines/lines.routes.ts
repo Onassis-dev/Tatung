@@ -1,10 +1,5 @@
 import { Router } from 'express';
-import {
-  createModel,
-  deleteModel,
-  editModel,
-  getLines,
-} from './lines.controller';
+import { createModel, deleteModel, editModel, getLines } from './lines.controller';
 
 export const linesRouter = Router();
 

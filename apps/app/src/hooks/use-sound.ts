@@ -14,7 +14,9 @@ export function useSounds() {
 
   const play = (type: "error" | "warn" | "success" | "correct") => {
     const sound = soundsRef.current[type];
-    sound?.play().catch(() => {
+    if (!sound) return;
+    sound.currentTime = 0; // reinicia el audio
+    sound.play().catch(() => {
       console.warn(`Sonido bloqueado: ${type}`);
     });
   };

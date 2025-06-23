@@ -6,7 +6,7 @@ export const getPartsSchema = z.object({
 });
 
 export const createPartSchema = z.object({
-  code: z.string(),
+  code: z.string().length(5),
 });
 
 export const editPartSchema = createPartSchema.extend({

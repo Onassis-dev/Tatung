@@ -10,6 +10,8 @@ import {
   CircleCheck,
   LogOut,
   Clock,
+  ChartColumnBig,
+  UserCog,
 } from "lucide-react";
 import { SidebarButton } from "@/components/ui/sidebar";
 import { Card } from "@/components/ui/card";
@@ -27,9 +29,14 @@ const items: {
   Icon: React.ElementType;
 }[] = [
   {
-    title: "Home",
-    url: "/home",
+    title: "Inicio",
+    url: "/",
     Icon: Home,
+  },
+  {
+    title: "Dashboard",
+    url: "/dashboard",
+    Icon: ChartColumnBig,
   },
   {
     title: "Producido",
@@ -48,6 +55,12 @@ const items: {
     url: "/models",
     permission: "p_models",
     Icon: Monitor,
+  },
+  {
+    title: "Supervisores",
+    url: "/supervisors",
+    permission: "p_models",
+    Icon: UserCog,
   },
   {
     title: "Partes",
@@ -113,7 +126,7 @@ export function AppSidebar() {
             localStorage.removeItem("user");
             navigate("/login");
           }}
-          className="mt-auto w-full justify-start text-muted-foreground gap-2"
+          className="mt-auto w-full justify-start text-muted-foreground gap-2 !px-2 py-1.5 font-normal"
         >
           <LogOut className="size-4" />
           Cerrar sesión

@@ -13,6 +13,8 @@ import { ipsRouter } from './routes/ips/ips.routes';
 import { displaysRouter } from './routes/displays/displays.routes';
 import { producedRouter } from './routes/produced/produced.routes';
 import { turnsRouter } from './routes/turns/turns.routes';
+import { dashboardRouter } from './routes/dashboard/dashboard.routes';
+import { supervisorsRouter } from './routes/supervisors/supervisors.routes';
 
 process.env.TZ = 'UTC';
 
@@ -48,6 +50,8 @@ app.use('/lines', authenticate('planning') as RequestHandler, linesRouter);
 app.use('/days', authenticate('planning') as RequestHandler, daysRouter);
 app.use('/produced', authenticate('planning') as RequestHandler, producedRouter);
 app.use('/turns', authenticate('planning') as RequestHandler, turnsRouter);
+app.use('/dashboard', authenticate('planning') as RequestHandler, dashboardRouter);
+app.use('/supervisors', authenticate('planning') as RequestHandler, supervisorsRouter);
 
 app.use(errorHandler);
 

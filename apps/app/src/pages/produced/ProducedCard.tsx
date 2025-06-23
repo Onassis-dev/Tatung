@@ -1,6 +1,8 @@
 import { Form } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import api from "@/lib/server";
+import { useEffect, useState } from "react";
 
 interface props {
   show: boolean;
@@ -9,6 +11,18 @@ interface props {
 }
 
 export function ProducedCard({ show, setShow, selectedRow }: props) {
+  const [parts, setParts] = useState<{ code: string }[]>([]);
+
+  useEffect(() => {
+    if (selectedRow) {
+      api
+        .get(`/produced/parts?id=${selectedRow.id}`)
+        .then((res) => setParts(res.data));
+    } else {
+      setParts([]);
+    }
+  }, [selectedRow]);
+
   return (
     <Form
       trigger={false}
@@ -28,12 +42,15 @@ export function ProducedCard({ show, setShow, selectedRow }: props) {
             readOnly
           />
         </Label>
+        <Label title="Supervisor">
+          <Input value={selectedRow?.sup_code} readOnly />
+        </Label>
       </div>
       <Label title="Partes">
         <div className="grid gap-1">
-          {selectedRow?.parts.map((part: string) => (
-            <div key={part} className="bg-gray-100 rounded-md p-2 text-sm">
-              {part}
+          {parts.map(({ code }) => (
+            <div key={code} className="bg-gray-100 rounded-md p-2 text-sm">
+              {code}
             </div>
           ))}
         </div>

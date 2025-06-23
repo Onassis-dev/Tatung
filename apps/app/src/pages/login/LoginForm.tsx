@@ -27,7 +27,7 @@ export function LoginForm({
     e.preventDefault();
     const { data } = await api.post("/auth/login", formData);
     localStorage.setItem("user", JSON.stringify(data.user));
-    navigate("/home");
+    navigate("/");
   };
 
   return (
